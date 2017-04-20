@@ -1,4 +1,6 @@
-﻿namespace Merchello.Web.Caching
+﻿using Umbraco.Web;
+
+namespace Merchello.Web.Caching
 {
     using System;
     using System.Collections.Generic;
@@ -161,6 +163,11 @@
         /// </returns>
         private static string GetSlugCacheKey(string slug, bool modified)
         {
+            if (UmbracoContext.Current.IsFrontEndUmbracoRequest)
+            {
+                var rootContent = UmbracoContext.Current.PublishedContentRequest.PublishedContent.AncestorOrSelf(1);
+                return string.Format("merch.productcontent.slug.{0}.{1}.{2}", slug, modified, rootContent.Id);
+            }
             return string.Format("merch.productcontent.slug.{0}.{1}", slug, modified);
         }
 
@@ -178,6 +185,11 @@
         /// </returns>
         private static string GetSkuCacheKey(string sku, bool modified)
         {
+            if (UmbracoContext.Current.IsFrontEndUmbracoRequest)
+            {
+                var rootContent = UmbracoContext.Current.PublishedContentRequest.PublishedContent.AncestorOrSelf(1);
+                return string.Format("merch.productcontent.sku.{0}.{1}.{2}", sku, modified, rootContent.Id);
+            }
             return string.Format("merch.productcontent.sku.{0}.{1}", sku, modified);
         }
 

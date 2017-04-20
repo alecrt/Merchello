@@ -37,7 +37,7 @@
         /// <returns>
         /// The <see cref="IWishList"/>.
         /// </returns>
-        public static IWishList WishList(this ICustomer customer)
+        public static IWishList WishList(this ICustomerBase customer)
         {
             return Workflow.WishList.GetWishList(customer);
         }

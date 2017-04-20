@@ -1,4 +1,6 @@
-﻿namespace Merchello.Web.Caching
+﻿using Umbraco.Web;
+
+namespace Merchello.Web.Caching
 {
     using System;
     using System.Collections.Generic;
@@ -40,7 +42,7 @@
         /// A function used to fetch the IPublishedContent in the case it was not found in cache
         /// </summary>
         private readonly Func<Guid, TContent> _fetch;
- 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VirtualContentCache{TContent,TEntity}"/> class. 
         /// </summary>
@@ -93,7 +95,7 @@
             var content = (TContent)_cache.RuntimeCache.GetCacheItem(cacheKey);
             if (content != null) return content;
 
-            return _fetch != null ? 
+            return _fetch != null ?
                 CacheContent(cacheKey, _fetch.Invoke(key)) :
                 default(TContent);
         }
@@ -230,8 +232,14 @@
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        private string GetCacheKey(Guid key, bool modified)
+        protected string GetCacheKey(Guid key, bool modified)
         {
+            if (UmbracoContext.Current.IsFrontEndUmbracoRequest)
+            {
+                var rootContent = UmbracoContext.Current.PublishedContentRequest.PublishedContent.AncestorOrSelf(1);
+                return string.Format("{0}.{1}.{2}.{3}", key, typeof(TContent), modified, rootContent.Id);
+            }
+
             // use the key first so we can clear it more easily
             return string.Format("{0}.{1}.{2}", key, typeof(TContent), modified);
         }
